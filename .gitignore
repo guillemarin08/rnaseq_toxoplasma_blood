@@ -1,0 +1,30 @@
+# Raw FASTQ files
+raw_data/
+*.fastq.gz
+
+# Alignment outputs
+bams/
+mapping/
+*.bam
+*.bai
+*.sam
+
+# Genome indexes
+genome/
+
+# QC outputs
+qc/
+logs/
+
+# SLURM output files
+*.out
+*.err
+
+# Other unused directories
+trim/
+
+# System/editor files
+*.swp
+*.swo
+.DS_Store
+
