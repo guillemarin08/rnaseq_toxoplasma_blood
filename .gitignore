@@ -2,6 +2,10 @@
 raw_data/
 *.fastq.gz
 
+# Trimmed FASTQ files
+trimmed/
+*.trimmed.fastq.gz
+
 # Alignment outputs
 bams/
 mapping/
