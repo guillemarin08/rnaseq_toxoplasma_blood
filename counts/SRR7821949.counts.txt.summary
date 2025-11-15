@@ -1,0 +1,15 @@
+Status	/data/users/gmaringarcia/rnaseq_toxoplasma_blood/mapped/SRR7821949.sorted.bam
+Assigned	44171223
+Unassigned_Unmapped	1855415
+Unassigned_Read_Type	0
+Unassigned_Singleton	0
+Unassigned_MappingQuality	0
+Unassigned_Chimera	0
+Unassigned_FragmentLength	0
+Unassigned_Duplicate	0
+Unassigned_MultiMapping	13091491
+Unassigned_Secondary	0
+Unassigned_NonSplit	0
+Unassigned_NoFeatures	6665459
+Unassigned_Overlapping_Length	0
+Unassigned_Ambiguity	1208341
