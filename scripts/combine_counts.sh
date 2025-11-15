@@ -6,50 +6,56 @@
 #SBATCH --time=00:10:00
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=4G
+#SBATCH --mail-type=END,FAIL
+#SBATCH --mail-user=guillermo.maringarcia@students.unibe.ch
 
+# Paths
 COUNTS_DIR="/data/users/gmaringarcia/rnaseq_toxoplasma_blood/counts"
-OUTPUT="$COUNTS_DIR/all_samples_counts.txt"
+OUTPUT="${COUNTS_DIR}/all_samples_counts.txt"
 
 cd $COUNTS_DIR
 
+# Detect .counts.txt files
 FILES=( $(ls *.counts.txt) )
 
-echo "Found ${#FILES[@]} files."
+echo "Detected ${#FILES[@]} files:"
+printf '%s\n' "${FILES[@]}"
 
-# ----- Extract Gene IDs from the first file (skip comments, skip second header) -----
-
+# Use the first file to extract gene IDs
 FIRST=${FILES[0]}
 
-grep -v "^#" "$FIRST" | sed '1d' | cut -f1 > gene_ids.tmp
+echo "Using $FIRST as reference."
 
-# Start matrix
-cp gene_ids.tmp matrix.tmp
+# Extract Geneid column
+cut -f1 "$FIRST" > gene_column.tmp
 
-# ----- Loop through each sample -----
+# For each file, extract counts and add to matrix
 for FILE in "${FILES[@]}"; do
-
     SAMPLE=$(basename "$FILE" .counts.txt)
-
     echo "Processing $SAMPLE"
 
-    # Skip comment lines (#...) AND skip the header line with BAM paths
-    grep -v "^#" "$FILE" | sed '1d' | awk '{print $NF}' > ${SAMPLE}.tmp
+    # Extract last column (= counts)
+    cut -f7 "$FILE" > ${SAMPLE}.tmp
 
-    paste matrix.tmp ${SAMPLE}.tmp > matrix2.tmp
-    mv matrix2.tmp matrix.tmp
+    # Paste into matrix
+    paste gene_column.tmp ${SAMPLE}.tmp > temp && mv temp gene_column.tmp
 
+    # Rename column inside header later
 done
 
-# ----- Create clean header -----
+# Build header
 HEADER="Geneid"
 for FILE in "${FILES[@]}"; do
     SAMPLE=$(basename "$FILE" .counts.txt)
     HEADER="${HEADER}\t${SAMPLE}"
 done
 
+# Write output
 echo -e "$HEADER" > "$OUTPUT"
-cat matrix.tmp >> "$OUTPUT"
+cat gene_column.tmp >> "$OUTPUT"
 
+# Clean temporary files
 rm *.tmp
 
-echo "Matrix created at: $OUTPUT"
+echo "Matrix created at:"
+echo "$OUTPUT"
