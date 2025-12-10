@@ -31,6 +31,8 @@ apptainer exec --bind /data $CONTAINER \
         -a $ANNOTATION \                 # GTF annotation file (gene coordinates)
         -o ${OUT_DIR}/counts.txt \       # Output file containing gene counts
         -s 2 \                           # Strandedness: 2 = reversely stranded (Illumina TruSeq / RF)
+        -t exon                          # Count reads overlapping exons (gene-level quantification)
+        -g gene_id                       # Group exons by gene_id attribute to obtain gene-level counts
         -p \                             # Paired-end mode: count fragments instead of individual reads
         ${BAM_DIR}/*_sorted.bam          # All sorted BAM files from HISAT2 mapping
 
