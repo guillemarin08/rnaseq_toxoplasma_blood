@@ -29,7 +29,7 @@ FILES=(${RAW}/*_1.fastq.gz)
 N=${#FILES[@]}
 
 if [ "$N" -eq 0 ]; then
-    echo "❌ ERROR: No R1 files found in $RAW"
+    echo "ERROR: No R1 files found in $RAW"
     exit 1
 fi
 
