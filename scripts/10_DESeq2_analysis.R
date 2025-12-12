@@ -154,26 +154,35 @@ p_volcano <- EnhancedVolcano(res_interaction,
                              subtitle = 'Genes showing significantly different responses in DKO compared to WT',
                              pCutoff = 0.05,
                              FCcutoff = 1.0,
-                             pointSize = 2.0,
-                             labSize = 5.0,
+                             pointSize = 3.0,
+                             labSize = 10.0,
                              colCustom = keyvals,
                              colAlpha = 0.8,
                              legendPosition = 'right',
-                             legendLabSize = 10,
-                             legendIconSize = 3.0,
+                             legendLabSize = 16,
+                             legendIconSize = 6.0,
                              drawConnectors = TRUE,
                              widthConnectors = 0.5,
                              boxedLabels = TRUE,
                              gridlines.major = FALSE, 
                              gridlines.minor = FALSE
-) + theme_bw() + theme(plot.title = element_text(hjust = 0.5, size=16, face="bold"),
-                       plot.subtitle = element_text(hjust = 0.5),
-                       legend.title = element_blank())
+) +
+  theme_bw(base_size = 22) +
+  theme(
+    plot.title = element_text(size = 26, face = "bold"),
+    plot.subtitle = element_text(size = 24),
+    axis.title = element_text(size = 25),
+    axis.text  = element_text(size = 19),
+    legend.title = element_blank(),               
+    legend.text  = element_text(size = 23)
+  ) +
+  guides(color = guide_legend(title = NULL))
+  
+
 print(p_volcano)
 
-# Save Plot
-ggsave(file.path(base_dir, "DE_Volcano_Plot.png"), plot = p_volcano, width = 10, height = 8, dpi = 300)
-
+#Save volcano plot
+ggsave(file.path(base_dir, "DE_Volcano_Plot.png"), p_volcano, width = 13, height = 11, dpi = 300)
 
 # ------------------------------------------------------------------------------
 # 9. Visualization: Normalized Counts for Selected Genes
@@ -198,13 +207,18 @@ for (gene_sym in genes_highlight) {
          subtitle = "Interaction Effect (Normalized Counts)",
          y = "Normalized Counts (log10)",
          x = "Condition") +
-    theme_bw() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme_bw(base_size = 22) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 20),
+      axis.text.y = element_text(size = 20),                           
+      axis.title  = element_text(size = 24),                           
+      plot.title  = element_text(size = 26, face = "bold"),            
+      plot.subtitle = element_text(size = 22))
   
   print(p_counts)
   
   # Save Plot
-  ggsave(file.path(base_dir, paste0("DE_Counts_", gene_sym, ".png")), plot = p_counts, width = 6, height = 5)
+  ggsave(file.path(base_dir, paste0("DE_Counts_", gene_sym, ".png")), plot = p_counts, width = 10, height = 8)
 }
 
 
@@ -216,8 +230,9 @@ for (gene_sym in genes_highlight) {
 
 cat("Starting Split GO Analysis (Strict: |Log2FC| > 1)...\n")
 
-# Define universe (all measured genes)
-universe_genes <- rownames(res_interaction)
+# Define universe (all measured genes) excluding NA genes
+universe_genes <- rownames(res_interaction)[!is.na(res_interaction$pvalue)]
+
 
 # ------------------------------------------------------------------------------
 # A. ANALYSIS OF DOWN-REGULATED GENES (Strictly < -1)
@@ -243,12 +258,17 @@ if(!is.null(ego_down) && nrow(ego_down) > 0) {
   # Barplot (Blue Theme)
   p_bar_down <- barplot(ego_down, showCategory=10) + 
     ggtitle("Top Enriched Terms (Down-regulated, Log2FC < -1)") +
-    theme(plot.title = element_text(color = "navy", face = "bold"))
+    theme(plot.title = element_text(color = "navy", face = "bold", size = 24),
+          axis.title = element_text(size = 24),                                 
+          axis.text  = element_text(size = 16),                                 
+          legend.title = element_text("p.adjust", size = 16),
+          legend.text = element_text(size = 13))
+  
+  ggsave(file.path(base_dir, "GO_Barplot_Down.png"), p_bar_down, width = 13, height = 9)
+  write.csv(as.data.frame(ego_down), file.path(base_dir, "GO_Down.csv"))
   
   print(p_bar_down)
-  ggsave(file.path(base_dir, "GO_Barplot_Down_Strict.png"), plot = p_bar_down, width = 9, height = 7)
-  write.csv(as.data.frame(ego_down), file = file.path(base_dir, "GO_Results_Down_Strict.csv"))
-  
+
 } else {
   message("No GO terms found for strict Down-regulated genes.")
 }
@@ -278,12 +298,17 @@ if(!is.null(ego_up) && nrow(ego_up) > 0) {
   # Barplot (Red Theme)
   p_bar_up <- barplot(ego_up, showCategory=10) + 
     ggtitle("Top Enriched Terms (Up-regulated, Log2FC > 1)") +
-    theme(plot.title = element_text(color = "darkred", face = "bold"))
+    theme(plot.title = element_text(color = "darkred", face = "bold", size = 24),
+          axis.title = element_text(size = 24),                               
+          axis.text  = element_text(size = 33),                                
+          legend.title = element_text("p.adjust", size = 16),
+          legend.text = element_text(size = 13))
+  
+  ggsave(file.path(base_dir, "GO_Barplot_Up.png"), p_bar_up, width = 13, height = 9)
+  write.csv(as.data.frame(ego_up), file.path(base_dir, "GO_Up.csv"))
   
   print(p_bar_up)
-  ggsave(file.path(base_dir, "GO_Barplot_Up_Strict.png"), plot = p_bar_up, width = 9, height = 7)
-  write.csv(as.data.frame(ego_up), file = file.path(base_dir, "GO_Results_Up_Strict.csv"))
-  
+
 } else {
   message("No GO terms found for strict Up-regulated genes.")
 }
